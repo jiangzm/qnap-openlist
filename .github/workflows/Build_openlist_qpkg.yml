@@ -18,6 +18,9 @@ on:
         type: boolean
         default: false
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write
 
@@ -202,9 +205,9 @@ jobs:
 
           for file in *.qpkg; do
             if [[ "$file" == *"x86_64"* ]] || [[ "$file" == *"x86-64"* ]] || [[ "$file" == *"amd64"* ]]; then
-              NEW_NAME="qnap-openlist-webdav_${VERSION}_x86_64.qpkg"
+              NEW_NAME="qnap-openlist_${VERSION}_x86_64.qpkg"
             elif [[ "$file" == *"arm_64"* ]] || [[ "$file" == *"arm-64"* ]] || [[ "$file" == *"aarch64"* ]] || [[ "$file" == *"arm64"* ]]; then
-              NEW_NAME="qnap-openlist-webdav_${VERSION}_arm_64.qpkg"
+              NEW_NAME="qnap-openlist_${VERSION}_arm_64.qpkg"
             else
               echo "未知架构文件，跳过: $file"
               continue
@@ -278,10 +281,10 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
-          name: "qnap-openlist-webdav v${{ steps.version.outputs.version }}"
+          name: "qnap-openlist v${{ steps.version.outputs.version }}"
           files: qpkg-release/*
           body: |
-            # qnap-openlist-webdav v${{ steps.version.outputs.version }}
+            # qnap-openlist v${{ steps.version.outputs.version }}
 
             Built with QDK (QNAP Development Kit)
 

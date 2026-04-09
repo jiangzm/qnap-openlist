@@ -1,4 +1,4 @@
-# 多云盘挂载集成工具 for QNAP
+# OpenList for QNAP
 ### OpenList webdav for QNAP
 A file list program that supports multiple storage, powered by Gin and Solidjs.
 
@@ -105,14 +105,6 @@ A file list program that supports multiple storage, powered by Gin and Solidjs.
 * 注意：威联通HBS3挂载的名称必须为英文，不能挂载/dav/根目录，要带网盘的挂载路径
 * 例如阿里云盘的openlist挂载目录名称是aliyundrive
 * 挂载URL：http://127.0.0.1:5244/dav/aliyundrive
-
-## 交流群
-* 群名称： openlist for QNAP QQ群号： 529743094
-* 可以交流各种QNAP技术、技巧、问题。
-<img src="https://raw.githubusercontent.com/iranee/qnap-openlist-webdav/main/qq-group.jpg" alt="QQ GRPUP" width="500"/>
-
-## Starchart
-![Star History Chart](https://api.star-history.com/svg?repos=iranee/qnap-openlist-webdav&type=Date)
 
 ## 开源声明
  1. 本软件为免费开源项目，无任何形式的盈利行为。
