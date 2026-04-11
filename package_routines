@@ -135,7 +135,7 @@ pkg_pre_install() {
 CONF=/etc/config/qpkg.conf
 QPKG_NAME="openlist"
 QPKG_ROOT=$(/sbin/getcfg $QPKG_NAME Install_Path -f ${CONF})
-sqlite3=$("/sbin/getcfg" "CacheMount" "Install_Path" -f "/etc/config/qpkg.conf")/bin/sqlite3
+sqlite3=$(/sbin/getcfg CacheMount Install_Path -f ${CONF})/bin/sqlite3
 Ver=4.2.1
 
     if [ -f "$QPKG_ROOT/data/data.db" ]; then
@@ -150,7 +150,7 @@ pkg_post_install() {
 CONF=/etc/config/qpkg.conf
 QPKG_NAME="openlist"
 QPKG_ROOT=$(/sbin/getcfg $QPKG_NAME Install_Path -f ${CONF})
-sqlite3=$(/sbin/getcfg CacheMount Install_Path -f /etc/config/qpkg.conf)/bin/sqlite3
+sqlite3=$(/sbin/getcfg CacheMount Install_Path -f ${CONF})/bin/sqlite3
 Ver=4.2.1
     
 	chmod -Rf 777 $QPKG_ROOT/openlist
