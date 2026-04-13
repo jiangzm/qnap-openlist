@@ -3,17 +3,26 @@ name: Build OpenList QPKG
 on:
   workflow_dispatch:
     inputs:
+      environment:
+        description: '变量环境'
+        type: choice
+        required: false
+        default: 'production'
+        options:
+          - development
+          - staging
+          - production
       version:
-        description: 'OpenList版本号（留空则自动获取最新版）'
+        description: 'OpenList版本号(默认最新版)'
         required: false
         default: ''
       notes:
-        description: '更新说明（支持Markdown）'
+        description: '更新说明(支持Markdown)'
         required: false
         type: string
         default: ''
       force_build:
-        description: '强制构建（已存在则覆盖）'
+        description: '强制构建(已存在则覆盖)'
         required: false
         type: boolean
         default: false
@@ -27,6 +36,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
 
     steps:
       - name: Checkout Repository
@@ -37,6 +47,7 @@ jobs:
       - name: Determine Version
         id: version
         run: |
+          echo "输入的环境变量为: ${{ github.event.inputs.environment }}" 
           if [ -n "${{ github.event.inputs.version }}" ]; then
             VERSION="${{ github.event.inputs.version }}"
             echo "使用手动指定版本: $VERSION"
@@ -146,9 +157,6 @@ jobs:
           CA_CRT: ${{ secrets.CA_CRT }}
           SIGN_CRT: ${{ secrets.SIGN_CRT }}
           SIGN_KEY: ${{ secrets.SIGN_KEY }}
-          CA_CERTS: "${{ runner.temp }}/certs/ca.crt"
-          QNAP_CERT: "${{ runner.temp }}/certs/signer.crt"
-          PRIVATE_KEY: "${{ runner.temp }}/certs/signer.key"
         run: |
           qbuild --exclude ".git" --exclude ".github" --exclude "build" -v
 
@@ -157,23 +165,35 @@ jobs:
             exit 1
           fi
 
-          echo "CA_CERTS: "$CA_CERTS
-          echo "QNAP_CERT: "$QNAP_CERT
-          echo "PRIVATE_KEY: "$PRIVATE_KEY
+          if [ -s "$SIGN_CRT" ] && [ -s "$SIGN_KEY" ]; then
+            echo "找到签名证书和私钥，准备代码签名证书文件"
 
-          mkdir -p $RUNNER_TEMP/certs
-          echo "$CA_CRT" > "$CA_CERTS"
-          echo "$SIGN_CRT" > "$QNAP_CERT"
-          echo "$SIGN_KEY" > "$PRIVATE_KEY"
-          chmod 600 $PRIVATE_KEY
+            CERTS_PATH="$RUNNER_TEMP/certs"
+            CA_CERTS="$CERTS_PATH/ca.crt"
+            QNAP_CERT="$CERTS_PATH/signer.crt"
+            PRIVATE_KEY="$CERTS_PATH/signer.key"
 
-          openssl verify -CAfile $CA_CERTS $QNAP_CERT
+            mkdir -p "$CERTS_PATH"
+            echo "$SIGN_CRT" > "$QNAP_CERT"
+            echo "$SIGN_KEY" > "$PRIVATE_KEY"
+            chmod 600 $PRIVATE_KEY
 
-          for file in build/*.qpkg; do
-            qbuild --add-code-signing "$file" -v
-          done
+            echo "QNAP_CERT=${QNAP_CERT}" >> $GITHUB_ENV
+            echo "PRIVATE_KEY=${PRIVATE_KEY}" >> $GITHUB_ENV
 
-          rm -rf $RUNNER_TEMP/certs
+            if [ -s "$CA_CRT" ]; then
+              echo "$CA_CRT" > "$CA_CERTS"
+              echo "CA_CERTS=${CA_CERTS}" >> $GITHUB_ENV
+            fi
+
+            openssl verify -CAfile $CA_CERTS $QNAP_CERT
+
+            for file in build/*.qpkg; do
+              qbuild --add-code-signing "$file" -v
+            done
+
+            rm -rf $CERTS_PATH
+          fi
 
           echo "QPKG 构建成功"
           ls -lh build
