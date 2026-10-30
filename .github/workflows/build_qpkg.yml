@@ -308,7 +308,7 @@ jobs:
           NOTES="${{ github.event.inputs.notes }}"
 
           if [ -z "$NOTES" ]; then
-            UPSTREAM_NOTES=$(curl -s "https://api.github.com/repos/OpenListTeam/OpenList/releases/latest" \
+            UPSTREAM_NOTES=$(curl -s "https://api.github.com/repos/OpenListTeam/OpenList/releases/tags/v${VERSION}" \
               | jq -r '.body' 2>/dev/null || echo "")
             if [ -n "$UPSTREAM_NOTES" ] && [ "$UPSTREAM_NOTES" != "null" ]; then
               NOTES="更新至 v${VERSION}"$'\n\n'"## 上游更新说明"$'\n'"${UPSTREAM_NOTES}"
